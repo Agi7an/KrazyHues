@@ -268,7 +268,7 @@ void gameInit()
   destroyer.y_acc = 0;
   destroyer.x = (destroyer.x3 - destroyer.x1) / 2;
   destroyer.y = (destroyer.y2 - destroyer.y1) / 2;
-  destroyer.vel = 2;
+  destroyer.vel = 3;
 
   chaser1.x1 = 0;
   chaser1.y1 = WINDOW_HEIGHT / 2 - 25;
@@ -348,12 +348,21 @@ void gravityDirection()
     {
       player.y_acc = 1;
     }
+    else
+    {
+      player.y_acc = 0;
+    }
+    
   }
   else if(player.y1 <= WINDOW_HEIGHT / 2 && player.y1 >= 0)
   {
     if(player.x1 >= 200 && player.x3 <= WINDOW_WIDTH - 200)
     {
       player.y_acc = -1;
+    }
+    else
+    {
+      player.y_acc = 0;
     }
   }
   else
@@ -521,7 +530,7 @@ void gameUpdate()
   time(&stopTime);
   score = difftime(stopTime, startTime);        // Updating the score depending on time difference
   S2D_SetText(inGameScore, "%d", score);
-  if(score > 8 && score < 46 && score % 9 == 0) // Increasing velocities every 9 seconds till 45 seconds
+  if(score > 8 && score < 49 && score % 8 == 0) // Increasing velocities every 8 seconds till 48 seconds
   {
     player.vel += 0.01;
     destroyer.vel += 0.01;
