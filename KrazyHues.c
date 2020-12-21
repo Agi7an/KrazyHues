@@ -45,9 +45,7 @@ S2D_Text *highScores;
 S2D_Text *score1;
 S2D_Text *score2;
 S2D_Text *score3;
-S2D_Text *quit2;
 S2D_Text *inGameScore;
-S2D_Text *quit3;
 S2D_Text *uName;
 S2D_Text *enterName;
 S2D_Image *homeBG;
@@ -74,6 +72,7 @@ int score = 0;
 void menuInit();
 void menuRender();
 void menu_on_mouse(S2D_Event mouseIn);
+void menuFree();
 
 void gameInit();
 void playerMovement();
@@ -84,19 +83,23 @@ int checkCollision(Box enemy);
 void gameRender();
 void gameUpdate();
 void game_on_key(S2D_Event input);
+void gameFree();
 
 void endInit();
 void endRender();
 void end_on_mouse(S2D_Event mouseIn);
+void endFree();
 
 void nameInputInit();
 void nameRender();
 void nameUpdate();
+void nameFree();
 
 void scoreInit();
 void score_on_mouse(S2D_Event mouseIn);
 void score_on_key(S2D_Event keyIn);
 void scoreRender();
+void scoreFree();
 
 // Set of Functions
 int main()
@@ -106,29 +109,25 @@ int main()
   menu->viewport.mode = S2D_SCALE;
   menu->on_mouse = menu_on_mouse;
   S2D_Show(menu);
-  S2D_FreeWindow(menu);
+  menuFree();
 
   if(!menuQuit)
   {
     gameInit();
     game = S2D_CreateWindow("Game", WINDOW_WIDTH, WINDOW_HEIGHT, gameUpdate, gameRender, S2D_RESIZABLE);
     game->viewport.mode = S2D_SCALE;
-
     S2D_PlayMusic(bgm, true);
-
     game->on_key = game_on_key;
-
     time(&startTime);
     S2D_Show(game);
-
-    S2D_FreeWindow(game);
+    gameFree();
 
     endInit();
     end = S2D_CreateWindow("Game Over", WINDOW_WIDTH, WINDOW_HEIGHT, NULL, endRender, S2D_RESIZABLE);
     end->viewport.mode = S2D_SCALE;
     end->on_mouse = end_on_mouse;
     S2D_Show(end);
-    S2D_FreeWindow(end);
+    endFree();
 
     if(scoreBoard)
     {
@@ -137,14 +136,14 @@ int main()
       nameInput->viewport.mode = S2D_SCALE;
       nameInput->on_key = score_on_key;
       S2D_Show(nameInput);
-      S2D_FreeWindow(nameInput);
+      nameFree();
       
       scoreInit();
       viewScores = S2D_CreateWindow("Highscores", WINDOW_WIDTH, WINDOW_HEIGHT, NULL, scoreRender, S2D_RESIZABLE);
       viewScores->viewport.mode = S2D_SCALE;
       viewScores->on_mouse = score_on_mouse;
       S2D_Show(viewScores);
-      S2D_FreeWindow(viewScores);
+      scoreFree();
     }
   }
   return 0;
@@ -212,6 +211,15 @@ void menu_on_mouse(S2D_Event mouseIn)
       menuQuit = 1;
     }
   }
+}
+
+void menuFree()
+{
+  S2D_FreeText(title);
+  S2D_FreeText(play);
+  S2D_FreeText(quit);
+  S2D_FreeImage(homeBG);
+  S2D_FreeWindow(menu);
 }
 
 void gameInit()
@@ -525,7 +533,6 @@ void gameUpdate()
     S2D_StopMusic();
     S2D_PlaySound(gameOverSound);
     S2D_Close(game);
-    S2D_FreeMusic(bgm);
     score = difftime(stopTime, startTime);
   }
 }
@@ -612,6 +619,14 @@ void game_on_key(S2D_Event input)
   } 
 }
 
+void gameFree()
+{
+  S2D_FreeText(inGameScore);
+  S2D_FreeImage(background);
+  S2D_FreeMusic(bgm);
+  S2D_FreeWindow(game);
+}
+
 void endInit()
 {
   scoreText = S2D_CreateText("Fonts/rubik/Rubik-Bold.ttf", "", 100);
@@ -631,20 +646,20 @@ void endInit()
   highScores->color.b = 1;
   highScores->color.a = 1;
 
-  quit2 = S2D_CreateText("Fonts/rubik/Rubik-Bold.ttf", "Quit", 50);
-  quit2->x = 575;
-  quit2->y = 400;
-  quit2->color.r = 1;
-  quit2->color.g = 1;
-  quit2->color.b = 1;
-  quit2->color.a = 1; 
+  quit = S2D_CreateText("Fonts/rubik/Rubik-Bold.ttf", "Quit", 50);
+  quit->x = 575;
+  quit->y = 400;
+  quit->color.r = 1;
+  quit->color.g = 1;
+  quit->color.b = 1;
+  quit->color.a = 1; 
 }
 
 void endRender()
 {
     S2D_DrawText(scoreText);
     S2D_DrawText(highScores);
-    S2D_DrawText(quit2);
+    S2D_DrawText(quit);
 }
 
 void end_on_mouse(S2D_Event mouseIn)
@@ -657,13 +672,21 @@ void end_on_mouse(S2D_Event mouseIn)
       scoreBoard = 1;
     }
   }
-  else if(end->mouse.x >= quit2->x && end->mouse.x <= quit2->x + 107 && end->mouse.y >= 400 && end->mouse.y <= 450)
+  else if(end->mouse.x >= quit->x && end->mouse.x <= quit->x + 107 && end->mouse.y >= 400 && end->mouse.y <= 450)
   {
     if(mouseIn.button == 1)
     {
       S2D_Close(end);
     }
   }
+}
+
+void endFree()
+{
+  S2D_FreeText(scoreText);
+  S2D_FreeText(highScores);
+  S2D_FreeText(quit);
+  S2D_FreeWindow(end);
 }
 
 void nameInputInit()
@@ -694,6 +717,13 @@ void nameRender()
 void nameUpdate()
 {
   S2D_SetText(uName, "%s", name);
+}
+
+void nameFree()
+{
+  S2D_FreeText(enterName);
+  S2D_FreeText(uName);
+  S2D_FreeWindow(nameInput);
 }
 
 //Accessing the HighScores file and updating the leaderboard
@@ -769,18 +799,18 @@ void scoreInit()
   score3->color.a = 1;
   S2D_SetText(score3, "3. %s %d", playerNames[2], playerScores[2]);
 
-  quit3 = S2D_CreateText("Fonts/rubik/Rubik-Bold.ttf", "Quit", 50);
-  quit3->x = 1150;
-  quit3->y = 650;
-  quit3->color.r = 1;
-  quit3->color.g = 1;
-  quit3->color.b = 1;
-  quit3->color.a = 1;
+  quit = S2D_CreateText("Fonts/rubik/Rubik-Bold.ttf", "Quit", 50);
+  quit->x = 1150;
+  quit->y = 650;
+  quit->color.r = 1;
+  quit->color.g = 1;
+  quit->color.b = 1;
+  quit->color.a = 1;
 }
 
 void score_on_mouse(S2D_Event mouseIn)
 {
-  if(viewScores->mouse.x >= quit3->x && viewScores->mouse.x <= quit3->x + 107 && viewScores->mouse.y >= quit3->y && viewScores->mouse.y <= quit3->y + 50)
+  if(viewScores->mouse.x >= quit->x && viewScores->mouse.x <= quit->x + 107 && viewScores->mouse.y >= quit->y && viewScores->mouse.y <= quit->y + 50)
   {
     if(mouseIn.button == 1)
     {
@@ -807,5 +837,15 @@ void scoreRender()
   S2D_DrawText(score1);
   S2D_DrawText(score2);
   S2D_DrawText(score3);
-  S2D_DrawText(quit3);
+  S2D_DrawText(quit);
+}
+
+void scoreFree()
+{
+  S2D_FreeText(highScores);
+  S2D_FreeText(score1);
+  S2D_FreeText(score2);
+  S2D_FreeText(score3);
+  S2D_FreeText(quit);
+  S2D_FreeWindow(viewScores);
 }
